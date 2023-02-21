@@ -1,0 +1,40 @@
+import random
+from math import gcd
+from Crypto.Util.number import getPrime
+
+class RSA:
+    def __init__(self, bit_size=1024):
+        self.bit_size = bit_size
+        self.p = 0
+        self.q = 0
+        self.n = 0
+        self.phi = 0
+        self.e = 0
+        self.d = 0
+        self.generate_keys()
+
+    def generate_keys(self):
+        # Choose two prime numbers p and q
+        self.p = getPrime(self.bit_size)
+        self.q = getPrime(self.bit_size)
+
+        # Compute modulus n and Euler's totient function of n
+        self.n = self.p * self.q
+        self.phi = (self.p - 1) * (self.q - 1)
+
+        # Choose public key exponent e
+        while True:
+            self.e = random.randrange(2, self.phi)
+            if gcd(self.e, self.phi) == 1:
+                break
+
+        # Compute private key exponent d
+        self.d = pow(self.e, -1, self.phi)
+
+    def encrypt(self, message):
+        # Compute ciphertext c = m^e mod n
+        return pow(message, self.e, self.n)
+
+    def decrypt(self, ciphertext):
+        # Compute message m = c^d mod n
+        return pow(ciphertext, self.d, self.n)
