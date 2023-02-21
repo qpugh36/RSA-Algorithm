@@ -1,0 +1,52 @@
+using System;
+using System.Numerics;
+
+public class RSA
+{
+    private BigInteger p; // first prime number
+    private BigInteger q; // second prime number
+    private BigInteger n; // modulus
+    private BigInteger phi; // Euler's totient function of n
+    private BigInteger e; // public key exponent
+    private BigInteger d; // private key exponent
+    private int bitSize = 1024; // bit size for prime numbers and exponent
+    private Random rand; // random number generator
+
+    public RSA()
+    {
+        rand = new Random();
+        GenerateKeys();
+    }
+
+    public void GenerateKeys()
+    {
+        // Choose two prime numbers p and q
+        p = BigInteger.GeneratePseudoPrime(bitSize, rand);
+        q = BigInteger.GeneratePseudoPrime(bitSize, rand);
+
+        // Compute modulus n and Euler's totient function of n
+        n = BigInteger.Multiply(p, q);
+        phi = BigInteger.Multiply(BigInteger.Subtract(p, BigInteger.One), BigInteger.Subtract(q, BigInteger.One));
+
+        // Choose public key exponent e
+        do
+        {
+            e = new BigInteger(bitSize / 2, rand);
+        } while (BigInteger.GreatestCommonDivisor(e, phi) != BigInteger.One);
+
+        // Compute private key exponent d
+        d = BigInteger.ModPow(e, -1, phi);
+    }
+
+    public BigInteger Encrypt(BigInteger message)
+    {
+        // Compute ciphertext c = m^e mod n
+        return BigInteger.ModPow(message, e, n);
+    }
+
+    public BigInteger Decrypt(BigInteger ciphertext)
+    {
+        // Compute message m = c^d mod n
+        return BigInteger.ModPow(ciphertext, d, n);
+    }
+}
