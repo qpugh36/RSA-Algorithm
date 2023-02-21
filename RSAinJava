@@ -1,0 +1,46 @@
+import java.math.BigInteger;
+import java.util.Random;
+
+public class RSA {
+    private BigInteger p; // first prime number
+    private BigInteger q; // second prime number
+    private BigInteger n; // modulus
+    private BigInteger phi; // Euler's totient function of n
+    private BigInteger e; // public key exponent
+    private BigInteger d; // private key exponent
+    private int bitSize = 1024; // bit size for prime numbers and exponent
+    private Random rand; // random number generator
+
+    public RSA() {
+        rand = new Random();
+        GenerateKeys();
+    }
+
+    public void GenerateKeys() {
+        // Choose two prime numbers p and q
+        p = BigInteger.probablePrime(bitSize, rand);
+        q = BigInteger.probablePrime(bitSize, rand);
+
+        // Compute modulus n and Euler's totient function of n
+        n = p.multiply(q);
+        phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+
+        // Choose public key exponent e
+        do {
+            e = new BigInteger(bitSize / 2, rand);
+        } while (!gcd(e, phi).equals(BigInteger.ONE));
+
+        // Compute private key exponent d
+        d = e.modInverse(phi);
+    }
+
+    public BigInteger Encrypt(BigInteger message) {
+        // Compute ciphertext c = m^e mod n
+        return message.modPow(e, n);
+    }
+
+    public BigInteger Decrypt(BigInteger ciphertext) {
+        // Compute message m = c^d mod n
+        return ciphertext.modPow(d, n);
+    }
+}
